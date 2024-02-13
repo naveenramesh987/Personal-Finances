@@ -1,5 +1,6 @@
 from flet import *
 from utils.colors import *
+from utils.validation import Validator
 
 
 class Signup(Container):
@@ -7,7 +8,9 @@ class Signup(Container):
         super().__init__()
         self.alignment = alignment.center
         self.expand = True
-        self.bgcolor = "#4e73df"
+        self.validator = Validator()
+        self.bgcolor = blue
+        self.error_border = border.all(width=1, color="red")
 
         self.name_box = Container(
             content=TextField(
@@ -109,4 +112,14 @@ class Signup(Container):
         )
 
     def signup(self, e):
-        
+        if not self.validator.is_correct_name(self.name_box.content.value):
+            self.name_box.border = self.error_border
+            self.name_box.update()
+
+        if not self.validator.is_valid_email(self.email_box.content.value):
+            self.email_box.border = self.error_border
+            self.email_box.update()
+
+        if not self.validator.is_valid_password(self.password_box.content.value):
+            self.password_box.border = self.error_border
+            self.password_box.update()

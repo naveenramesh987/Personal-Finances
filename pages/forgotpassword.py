@@ -78,4 +78,6 @@ class ForgotPassword(Container):
         )
 
     def reset_password(self, e):
-        pass
+        if not self.validator.is_valid_email(self.email_box.content.value):
+            self.email_box.border = self.error_border
+            self.email_box.update()

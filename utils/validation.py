@@ -19,7 +19,7 @@ class Validator:
         return re.match(pattern, email) is not None
 
     def is_valid_password(self, password):
-        asif not isinstance(password, str):
+        if not isinstance(password, str):
             return False
         if len(password) < 8:
             return False
