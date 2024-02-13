@@ -62,8 +62,31 @@ class Login(Container):
                             self.email_box,
                             self.password_box,
                             Container(height=0),
+                            Container(
+                                alignment=alignment.center,
+                                bgcolor="#4e73df",
+                                height=40,
+                                border_radius=30,
+                                content=Text(value="Login"),
+                                on_click=self.login,
+                            ),
+                            Container(
+                                content=Text(
+                                    value="Forgot Password?", color="#4e73df", size=12
+                                ),
+                                on_click=lambda _: self.page.go("/forgotpassword"),
+                            ),
+                            Container(
+                                content=Text(
+                                    value="Create New Account", color="#4e73df", size=12
+                                ),
+                                on_click=lambda _: self.page.go("/forgotpassword"),
+                            ),
                         ],
                     ),
                 )
             ],
         )
+
+    def login(self, e):
+        pass

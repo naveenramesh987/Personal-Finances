@@ -18,7 +18,7 @@ class Main(UserControl):
         self,
     ):
         self.page.on_route_change = self.on_route_change
-        self.page.go('/login')
+        self.page.go("/signup")
 
     def on_route_change(self, route):
         new_page = {
