@@ -1,16 +1,18 @@
+import re
 from flet import *
-from utils.colors import *
+from service.auth import login_user, store_session
 from utils.validation import Validator
 
 
 class Login(Container):
     def __init__(self, page: Page):
         super().__init__()
-        self.alignment = alignment.center
-        self.expand = True
+        page.padding = 0
         self.validator = Validator()
-        self.bgcolor = blue
-
+        self.expand = True
+        self.bgcolor = "#4e73df"
+        self.alignment = alignment.center
+        self.error_border = border.all(width=1, color="red")
         self.email_box = Container(
             content=TextField(
                 border=InputBorder.NONE,
@@ -50,6 +52,7 @@ class Login(Container):
             controls=[
                 Container(
                     width=500,
+                    border_radius=12,
                     padding=40,
                     bgcolor="white",
                     content=Column(
@@ -72,17 +75,25 @@ class Login(Container):
                                 content=Text(value="Login"),
                                 on_click=self.login,
                             ),
+                            Container(height=0),
                             Container(
                                 content=Text(
                                     value="Forgot Password?", color="#4e73df", size=12
                                 ),
-                                on_click=lambda _: self.page.go("/forgotpassword"),
+                                on_click=lambda _: (
+                                    setattr(
+                                        self.page, "data", self.email_box.content.value
+                                    ),
+                                    self.page.go("/forgotpassword"),
+                                ),
                             ),
                             Container(
                                 content=Text(
                                     value="Create New Account", color="#4e73df", size=12
                                 ),
-                                on_click=lambda _: self.page.go("/forgotpassword"),
+                                on_click=lambda _: self.page.go("/signup"),
+                                # on_click=lambda _: (
+                                #     setattr(self.page, 'data', self.email_box.content.value), self.page.go('/signup'))
                             ),
                         ],
                     ),
@@ -98,3 +109,21 @@ class Login(Container):
         if not self.validator.is_valid_password(self.password_box.content.value):
             self.password_box.border = self.error_border
             self.password_box.update()
+
+        else:
+            email = self.email_box.content.value
+            password = self.password_box.content.value
+
+            self.page.splash = ProgressBar()
+            self.page.update()
+
+            token = login_user(email, password)
+            self.page.splash = None
+            self.page.update()
+            if token:
+                store_session(token)
+                self.page.go("/me")
+            else:
+                self.page.snack_bar = SnackBar(Text("Invalid credentials"))
+                self.page.snack_bar.open = True
+                self.page.update()

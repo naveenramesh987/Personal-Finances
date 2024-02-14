@@ -1,8 +1,11 @@
+import pickle
 from flet import *
+from pages.home import Home
 from pages.forgotpassword import ForgotPassword
 from pages.dashboard import Dashboard
 from pages.login import Login
 from pages.signup import Signup
+from service.auth import authenticate_token
 
 
 class Main(UserControl):
@@ -11,17 +14,23 @@ class Main(UserControl):
         page: Page,
     ):
         super().__init__()
+        page.padding = 0
         self.page = page
-        self.init_helper()
+        self.init()
 
-    def init_helper(
+    def init(
         self,
     ):
         self.page.on_route_change = self.on_route_change
-        self.page.go("/signup")
+        token = self.load_token()
+        if authenticate_token(token):
+            self.page.go("/me")
+        else:
+            self.page.go("/login")
 
     def on_route_change(self, route):
         new_page = {
+            "/": Home,
             "/login": Login,
             "/signup": Signup,
             "/me": Dashboard,
@@ -31,5 +40,15 @@ class Main(UserControl):
         self.page.views.clear()
         self.page.views.append(View(route, [new_page]))
 
+    def load_token(
+        self,
+    ):
+        try:
+            with open("token.pickle", "rb") as f:
+                token = pickle.load(f)
+            return token
+        except:
+            return None
 
-app(target=Main, assets_dir="assets", view=WEB_BROWSER)
+
+app(target=Main, view=WEB_BROWSER)

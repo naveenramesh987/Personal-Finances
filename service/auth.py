@@ -7,18 +7,20 @@ from firebase_admin import credentials
 
 
 cred = credentials.Certificate("service_account.json")
+
 firebase_admin.initialize_app(cred)
 
 firebaseConfig = {
-    "apiKey": "AIzaSyCqf4NiF5AeaJADg944J-I1AMHq95GpZgg",
-    "authDomain": "fletauth2-57a9c.firebaseapp.com",
-    "projectId": "fletauth2-57a9c",
-    "storageBucket": "fletauth2-57a9c.appspot.com",
-    "messagingSenderId": "800924007682",
-    "appId": "1:800924007682:web:037c87109647dbd5c2d61b",
-    "measurementId": "G-1TNKMVCBJG",
-    "databaseURL": "https://fletauth2-57a9c-default-rtdb.firebaseio.com/",
+    "apiKey": "AIzaSyBkg3RQkA39mAIQNwLmL5RU4eewDH7j564",
+    "authDomain": "fletauth.firebaseapp.com",
+    "projectId": "fletauth",
+    "storageBucket": "fletauth.appspot.com",
+    "messagingSenderId": "1051618712230",
+    "appId": "1:1051618712230:web:271d061362361a4a647267",
+    "measurementId": "G-GN55ZSCRRS",
+    "databaseURL": "https://fletauth-default-rtdb.firebaseio.com/",
 }
+
 
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
@@ -30,6 +32,14 @@ def create_user(name, email, password):
             email=email, password=password, display_name=name
         )
         return user.uid
+    except:
+        return None
+
+
+def reset_password(email):
+    try:
+        auth.send_password_reset_email(email)
+        return not None
     except:
         return None
 
@@ -47,3 +57,36 @@ def store_session(token):
         os.remove("token.pickle")
     with open("token.pickle", "wb") as f:
         pickle.dump(token, f)
+
+
+def load_token():
+    try:
+        with open("token.pickle", "rb") as f:
+            token = pickle.load(f)
+        return token
+    except:
+        return None
+
+
+def authenticate_token(token):
+    try:
+        result = firebase_auth.verify_id_token(token)
+
+        return result["user_id"]
+    except:
+        return None
+
+
+def get_name(token):
+    try:
+        result = firebase_auth.verify_id_token(token)
+
+        return result["name"]
+    except:
+        return None
+
+
+def revoke_token(token):
+    result = firebase_auth.revoke_refresh_tokens(authenticate_token(token))
+    if os.path.exists("token.pickle"):
+        os.remove("token.pickle")
